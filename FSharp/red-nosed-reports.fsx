@@ -8,8 +8,8 @@ let reports = File.ReadAllLines "FSharp/red-nosed-reports-input.txt"
               |> List.ofArray
 
 let isSafePair a b inc = if inc
-                            then b - a >= 1 && b - a <= 3
-                            else a - b >= 1 && a - b <= 3
+                         then b - a >= 1 && b - a <= 3
+                         else a - b >= 1 && a - b <= 3
 
 let isSafe report =
     let rec isSafe report inc =
@@ -46,3 +46,9 @@ let result2 = reports
 let result3 = reports
               |> List.filter isSafe3
               |> List.length
+
+// 22 21 25 27 28
+
+for i in 0 .. List.length reports - 1 do
+    if isSafe2 reports[i] <> isSafe3 reports[i]
+    then printfn $"{reports[i]}: {isSafe2 reports[i]} {isSafe3 reports[i]}"
