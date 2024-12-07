@@ -28,3 +28,16 @@ let result1 = updates
               |> List.filter (isCorrect rules)
               |> List.sumBy middle
 
+let incorrectUpdates = updates |> List.filter (isCorrect rules >> not)
+
+let getCorrectMiddle2 rules update =
+    List.sortWith
+        (fun a b -> if List.contains (a, b) rules then -1
+                    else if List.contains (b, a) rules then 1
+                    else 0)
+        update
+    |> middle
+
+let result2 = 
+    incorrectUpdates
+    |> List.sumBy (getCorrectMiddle2 rules)
