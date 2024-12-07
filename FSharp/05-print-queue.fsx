@@ -6,7 +6,7 @@ let parseRule (line : string) = let [|a; b|] = line.Split '|'
 
 let parseUpdate (line : string) = line.Split ',' |> Array.map Int32.Parse |> List.ofArray
 
-let lines = File.ReadAllLines "FSharp/print-queue-input.txt" |> List.ofArray
+let lines = File.ReadAllLines "FSharp/05-print-queue-input.txt" |> List.ofArray
 let ruleLines, updateLines = List.splitAt (List.findIndex (fun (line : string) -> System.String.IsNullOrWhiteSpace(line)) lines) lines
 
 let rules = ruleLines |> List.map parseRule

@@ -1,7 +1,7 @@
 open System
 open System.IO
 
-let lines = File.ReadAllLines "FSharp/ceres-search-input.txt"
+let lines = File.ReadAllLines "FSharp/04-ceres-search-input.txt"
 
 let letters = Array2D.init
                   (lines.[0].Length)

@@ -1,7 +1,7 @@
 open System
 open System.IO
 
-let lines = File.ReadAllLines "FSharp/guard-galliant-input.txt"
+let lines = File.ReadAllLines "FSharp/06-guard-galliant-input.txt"
 
 let tiles = Array2D.init
                 lines[0].Length

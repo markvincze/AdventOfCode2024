@@ -3,7 +3,7 @@ open System.IO
 
 let parse (line : string) = line.Split ' ' |> Array.map Int32.Parse |> List.ofArray
 
-let reports = File.ReadAllLines "FSharp/red-nosed-reports-input.txt"
+let reports = File.ReadAllLines "FSharp/02-red-nosed-reports-input.txt"
               |> Array.map parse
               |> List.ofArray
 

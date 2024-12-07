@@ -2,7 +2,7 @@ open System
 open System.IO
 open System.Text.RegularExpressions
 
-let input = File.ReadAllText "FSharp/mull-it-over-input.txt"
+let input = File.ReadAllText "FSharp/03-mull-it-over-input.txt"
 
 let regex1 = new Regex(@"mul\((\d{1,3}),(\d{1,3})\)")
 

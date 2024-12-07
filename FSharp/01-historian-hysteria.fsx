@@ -4,7 +4,7 @@ open System.IO
 let parse (line : string) = let [| num1; num2 |] = line.Split("   ")
                             (Int32.Parse num1, Int32.Parse num2)
 
-let lines = File.ReadAllLines "FSharp/historian-hysteria-input.txt"
+let lines = File.ReadAllLines "FSharp/01-historian-hysteria-input.txt"
             |> Array.map parse
             |> List.ofArray
 
