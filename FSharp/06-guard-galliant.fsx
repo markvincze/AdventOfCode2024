@@ -10,7 +10,7 @@ let tiles = Array2D.init
 
 let pos = seq { for x in 0..(lines[0].Length - 1) do 
                     for y in 0..(lines.Length - 1) do
-                        yield (x, y)}
+                        yield (x, y) }
           |> Seq.find (fun (x, y) -> lines[y][x] = '^')
 
 type Dir = Up | Right | Down | Left
