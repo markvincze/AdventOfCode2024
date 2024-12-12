@@ -65,6 +65,8 @@ let result1 = regions
 
 type EdgeDirection = Vertical | Horizontal
 
+type EdgeSide = Left | Right | Top | Bottom
+
 let rec edgeCount coords prev acc =
     match coords with
     | [] -> acc
@@ -76,33 +78,31 @@ let perimeterBulk (garden : char[,]) region =
         |> Seq.collect
             (fun (x, y) -> let plant = garden[x, y]
                            seq {
-                               if x = 0 || garden[x - 1, y] <> plant then yield Vertical, (x, y)
-                               if y = 0 || garden[x, y - 1] <> plant then yield Horizontal, (x, y)
-                               if x = width - 1 || garden[x + 1, y] <> plant then yield Vertical, (x + 1, y)
-                               if y = height - 1 || garden[x, y + 1] <> plant then yield Horizontal, (x, y + 1)
+                               if x = 0 || garden[x - 1, y] <> plant then yield Vertical, Left, (x, y)
+                               if y = 0 || garden[x, y - 1] <> plant then yield Horizontal, Top, (x, y)
+                               if x = width - 1 || garden[x + 1, y] <> plant then yield Vertical, Right, (x + 1, y)
+                               if y = height - 1 || garden[x, y + 1] <> plant then yield Horizontal, Bottom, (x, y + 1)
                            })
         |> List.ofSeq
 
-    // printfn "edgePieces: %A" edgePieces
+    let horizontals = edgePieces
+                      |> List.filter (fun (d, _, _) -> d = Horizontal)
+                      |> List.map (fun (_, s, c) -> s, c)
 
-    let horizontals = edgePieces |> List.filter (fun (d, _) -> d = Horizontal) |> List.map snd
-
-    let groups = horizontals |> List.groupBy snd
-
-    // printfn "horizontal groups: %A" groups
+    let groups = horizontals |> List.groupBy (fun (s, (_, y)) -> s, y) 
 
     let horizontalEdgeCount = groups
-                              |> List.sumBy (fun (_, coords) -> let xs = coords |> List.map fst |> List.sort
+                              |> List.sumBy (fun (_, coords) -> let xs = coords |> List.map (snd >> fst) |> List.sort
                                                                 edgeCount xs Int32.MinValue 0)
 
-    let verticals = edgePieces |> List.filter (fun (d, _) -> d = Vertical) |> List.map snd
+    let verticals = edgePieces
+                    |> List.filter (fun (d, _, _) -> d = Vertical)
+                    |> List.map (fun (_, s, c) -> s, c)
 
-    let groups = verticals |> List.groupBy fst
-
-    // printfn "vertical groups: %A" groups
+    let groups = verticals |> List.groupBy (fun (s, (x, _)) -> s, x)
 
     let verticalEdgeCount = groups
-                            |> List.sumBy (fun (_, coords) -> let ys = coords |> List.map snd |> List.sort
+                            |> List.sumBy (fun (_, coords) -> let ys = coords |> List.map (snd >> snd) |> List.sort
                                                               edgeCount ys Int32.MinValue 0)
 
     horizontalEdgeCount + verticalEdgeCount
