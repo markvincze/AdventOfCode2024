@@ -62,3 +62,53 @@ let price (garden : char[,]) region = area region * perimeter garden region
 let result1 = regions
               |> List.map snd
               |> List.sumBy (price garden)
+
+type EdgeDirection = Vertical | Horizontal
+
+let rec edgeCount coords prev acc =
+    match coords with
+    | [] -> acc
+    | h :: t -> edgeCount t h (if h - prev = 1 then acc else acc + 1)
+
+let perimeterBulk (garden : char[,]) region =
+    let edgePieces =
+        region
+        |> Seq.collect
+            (fun (x, y) -> let plant = garden[x, y]
+                           seq {
+                               if x = 0 || garden[x - 1, y] <> plant then yield Vertical, (x, y)
+                               if y = 0 || garden[x, y - 1] <> plant then yield Horizontal, (x, y)
+                               if x = width - 1 || garden[x + 1, y] <> plant then yield Vertical, (x + 1, y)
+                               if y = height - 1 || garden[x, y + 1] <> plant then yield Horizontal, (x, y + 1)
+                           })
+        |> List.ofSeq
+
+    // printfn "edgePieces: %A" edgePieces
+
+    let horizontals = edgePieces |> List.filter (fun (d, _) -> d = Horizontal) |> List.map snd
+
+    let groups = horizontals |> List.groupBy snd
+
+    // printfn "horizontal groups: %A" groups
+
+    let horizontalEdgeCount = groups
+                              |> List.sumBy (fun (_, coords) -> let xs = coords |> List.map fst |> List.sort
+                                                                edgeCount xs Int32.MinValue 0)
+
+    let verticals = edgePieces |> List.filter (fun (d, _) -> d = Vertical) |> List.map snd
+
+    let groups = verticals |> List.groupBy fst
+
+    // printfn "vertical groups: %A" groups
+
+    let verticalEdgeCount = groups
+                            |> List.sumBy (fun (_, coords) -> let ys = coords |> List.map snd |> List.sort
+                                                              edgeCount ys Int32.MinValue 0)
+
+    horizontalEdgeCount + verticalEdgeCount
+
+let priceBulk (garden : char[,]) region = area region * perimeterBulk garden region
+
+let result2 = regions
+              |> List.map snd
+              |> List.sumBy (priceBulk garden)
