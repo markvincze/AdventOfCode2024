@@ -119,12 +119,12 @@ let rec canPushBoxes dir (x, y) (tiles : Tile [,]) =
 
 let pushBoxes2 dir (x, y) (tiles : Tile [,]) =
     printfn "pushBoxes2 called"
-    let rec pushBoxes2 dir (x, y) prev (tiles : Tile [,]) =
+    let rec pushBoxes2 dir (x, y) prev (tiles : Tile [,]) isSecondPush =
         let prevN = tiles[x, y]
         match dir with
         | Left | Right -> match prevN with
                           | BoxLeft | BoxRight -> tiles[x, y] <- prev
-                                                  pushBoxes2 dir (step dir (x, y)) prevN tiles
+                                                  pushBoxes2 dir (step dir (x, y)) prevN tiles isSecondPush
                           | Empty -> tiles[x, y] <- prev
         | Up | Down -> match prevN with
                        | BoxLeft | BoxRight -> tiles[x, y] <- prev
@@ -133,19 +133,25 @@ let pushBoxes2 dir (x, y) (tiles : Tile [,]) =
                                                               | BoxLeft -> (nx + 1, ny)
                                                               | BoxRight -> (nx - 1, ny)
                                                               | _ -> failwith "Invalid input 1"
-                                               pushBoxes2 dir (nx, ny) prevN tiles
-                                               if tiles[nx, y] <> Empty
-                                               then pushBoxes2 dir (nx2, ny2) Empty tiles
+                                               pushBoxes2 dir (nx, ny) prevN tiles isSecondPush
+                                               if tiles[nx, y] <> Empty && not isSecondPush
+                                               then pushBoxes2 dir (nx2, ny2) Empty tiles true
                        | Empty -> tiles[x, y] <- prev
 
     match dir with
-    | Left | Right -> pushBoxes2 dir (x, y) Empty tiles
+    | Left | Right -> pushBoxes2 dir (x, y) Empty tiles false
     | Up | Down -> let nx, ny = match tiles[x, y] with
                                 | BoxLeft -> x + 1, y
                                 | BoxRight -> x - 1, y
                                 | _ -> failwith "Invalid input 2"
-                   pushBoxes2 dir (x, y) Empty tiles
-                   pushBoxes2 dir (nx, ny) Empty tiles
+                //    printfn "Before first pushBoxes2"
+                //    print tiles (rx, ry)
+                   pushBoxes2 dir (x, y) Empty tiles false
+                //    printfn "After first pushBoxes2"
+                //    print tiles (rx, ry)
+                   pushBoxes2 dir (nx, ny) Empty tiles true
+                //    printfn "After second pushBoxes2"
+                //    print tiles (rx, ry)
 
 let move2 dir (x, y) (tiles : Tile[,]) =
     printfn "move2 called"
@@ -166,7 +172,8 @@ let rec executeSteps2 tiles (rx, ry) steps =
                 let nx, ny = move2 h (rx, ry) tiles
                 executeSteps2 tiles (nx, ny) t
 
-let fx2, fy2 = executeSteps2 tiles2 (rx2, ry2) (steps |> List.take 40)
+let fx2, fy2 = executeSteps2 tiles2 (rx2, ry2) (steps |> List.take 340)
+// let fx2, fy2 = executeSteps2 tiles2 (rx2, ry2) steps
 
 // print tiles (fx, fy)
 
