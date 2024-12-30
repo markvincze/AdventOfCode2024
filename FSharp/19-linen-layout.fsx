@@ -13,31 +13,35 @@ let isPossible (towels : string list) (design : string) =
             |> Seq.forall (fun i -> str[from + i] = sub[i])
         else false
 
-    let rec findSolution from (allTowels : string list) (towels : string list) (design : string) notPossible =
-        // printfn $"findSolution called, from: {from}"
+    let rec findSolution from (allTowels : string list) (towels : string list) (design : string) (solCountCache : Map<int, int64>) acc =
         match towels with
-        | [] -> false, Set.add from notPossible
-        | h :: t -> //printfn $"Testing {h}"
-                    if isMatch design from h
-                    then let result, notPossible = isPossible (from + h.Length) allTowels design notPossible
-                         if result
-                         then true, notPossible
-                         else findSolution from allTowels t design notPossible
-                    else findSolution from allTowels t design notPossible
-    and isPossible from (towels : string list) (design : string) notPossible =
-        // printfn $"isPossible called, from: {from}"
-        // (false, notPossible)
-        if (Set.contains from notPossible) then (false, notPossible)
-        else if from = design.Length then (true, notPossible)
-        else findSolution from towels towels design notPossible
-            // towels
-            //  |> Array.exists (fun t -> isMatch design from t && isPossible (from + t.Length) towels design cache)
-            //  |> Array.filter (fun t -> isMatch design from t)
-            //  |> Array.exists (fun t -> isPossible (from + t.Length) towels design)
+        | [] -> acc, Map.add from acc solCountCache
+        | h :: t -> let sc, solCountCache =
+                        if isMatch design from h
+                        then isPossible (from + h.Length) allTowels design solCountCache
+                        else 0L, solCountCache
+                    findSolution from allTowels t design solCountCache (acc + sc)
 
-    isPossible 0 towels design Set.empty<int> |> fst
+    and isPossible from (towels : string list) (design : string) (solCountCache : Map<int, int64>) =
+        match Map.tryFind from solCountCache with
+        | Some sc -> sc, solCountCache
+        | None -> if from = design.Length then (1, solCountCache)
+                  else findSolution from towels towels design solCountCache 0L
+
+    isPossible 0 towels design Map.empty<int, int64> |> fst
 
 let result1 = designs
             //   |> Array.take 1
-              |> Array.filter (isPossible towels)
+            //   |> Array.map (isPossible towels)
+              |> Array.filter (fun d -> isPossible towels d > 0)
               |> Array.length
+
+let result2 = designs
+            //   |> Array.take 1
+            //   |> Array.map (isPossible towels)
+              |> Array.sumBy (isPossible towels >> int64)
+
+        // | h :: t -> if isMatch design from h
+        //             then let sc, solCountCache = isPossible (from + h.Length) allTowels design solCountCache
+        //                  findSolution from allTowels t design solCountCache (acc + sc)
+        //             else findSolution from allTowels t design solCountCache acc
