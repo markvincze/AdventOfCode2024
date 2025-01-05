@@ -31,17 +31,8 @@ let isPossible (towels : string list) (design : string) =
     isPossible 0 towels design Map.empty<int, int64> |> fst
 
 let result1 = designs
-            //   |> Array.take 1
-            //   |> Array.map (isPossible towels)
               |> Array.filter (fun d -> isPossible towels d > 0)
               |> Array.length
 
 let result2 = designs
-            //   |> Array.take 1
-            //   |> Array.map (isPossible towels)
               |> Array.sumBy (isPossible towels >> int64)
-
-        // | h :: t -> if isMatch design from h
-        //             then let sc, solCountCache = isPossible (from + h.Length) allTowels design solCountCache
-        //                  findSolution from allTowels t design solCountCache (acc + sc)
-        //             else findSolution from allTowels t design solCountCache acc
